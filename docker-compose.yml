@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgis_db:
+    image: postgis/postgis:15-3.3
+    container_name: postgis_db
+    env_file: .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geo_network
+
+volumes:
+  postgres_data:
+
+networks:
+  geo_network:
+    driver: bridge
