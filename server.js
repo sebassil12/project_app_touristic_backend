@@ -6,11 +6,11 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const markerRoutes = require('./routes/markerRoutes');
-
+const pool = require('./config/db');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const DB_HOST = process.env.DB_HOST || 'localhost';
+const PORT = 3000;
+const DB_HOST = process.env.POSTGRES_HOST || 'localhost';
 
 app.use(express.json());
 
@@ -23,6 +23,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.get('/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', db: 'connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', db: err.message });
+  }
+});
 // Routes
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);

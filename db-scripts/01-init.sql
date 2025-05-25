@@ -1,11 +1,16 @@
 -- Enable PostGIS
 CREATE EXTENSION IF NOT EXISTS postgis;
 
--- Secure schema setup
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
+-- Create schema and objects
 CREATE SCHEMA IF NOT EXISTS gis_schema;
-GRANT USAGE ON SCHEMA gis_schema TO uisrael_user;
 
+-- Grant permissions to user
+GRANT CREATE, USAGE ON SCHEMA gis_schema TO uisrael_user;
+
+-- Set the current schema
+SET LOCAL search_path TO gis_schema;
+
+-- Users table
 CREATE TABLE IF NOT EXISTS gis_schema.users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
@@ -16,7 +21,8 @@ CREATE TABLE IF NOT EXISTS gis_schema.users (
     updated_at TIMESTAMP WITH TIME ZONE,
     last_login TIMESTAMP WITH TIME ZONE
 );
--- Secure table for markers
+
+-- Markers table
 CREATE TABLE IF NOT EXISTS gis_schema.markers (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -28,11 +34,5 @@ CREATE TABLE IF NOT EXISTS gis_schema.markers (
     updated_by VARCHAR(100)
 );
 
--- Secure permissions
-GRANT CONNECT ON DATABASE gis_app TO uisrael_user;
-GRANT USAGE ON SCHEMA gis_schema TO uisrael_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA gis_schema TO uisrael_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA gis_schema TO uisrael_user;
-
--- Create spatial index
-CREATE INDEX idx_markers_geom ON gis_schema.markers USING GIST(geom);
+-- Spatial index
+CREATE INDEX IF NOT EXISTS idx_markers_geom ON markers USING GIST(geom);

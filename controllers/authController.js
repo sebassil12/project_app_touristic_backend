@@ -1,4 +1,8 @@
 const pool = require('../config/db');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+require('dotenv').config();
+const { validationResult } = require('express-validator');
 
 exports.login = async (req, res) => {
 
@@ -34,6 +38,15 @@ exports.login = async (req, res) => {
 };
 
 exports.register = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({
+            success: false,
+            message: 'Validation failed',
+            errors: errors.array()
+        });
+    }
+
     const { username, password, email } = req.body;
 
     try {
@@ -49,6 +62,8 @@ exports.register = async (req, res) => {
             message: 'Registration successful'
         });
     } catch (err) {
+        console.error(err); // 🔥 MUY IMPORTANTE: Loggear el error real
+
         if (err.code === '23505') {
             const detail = err.detail.includes('email')
                 ? 'Email already exists'
