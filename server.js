@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
-const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const app = express();
+
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const markerRoutes = require('./routes/markerRoutes');
+
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const DB_HOST = process.env.DB_HOST || 'localhost';
 
 app.use(express.json());
 
